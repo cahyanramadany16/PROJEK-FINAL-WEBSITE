@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_room'])) {
     }
 
     // Memastikan folder resource ada
-    $image_path = "../resource/" . basename($image['name']);
+    $image_path = "resource/" . basename($image['name']);
     if (!move_uploaded_file($image['tmp_name'], $image_path)) {
         die("Error uploading file to destination.");
     }
@@ -111,11 +111,24 @@ if (!$result) {
 }
 
 session_start();
-// Pastikan user role admin
-if ($_SESSION['role'] !== 'admin') {
-    header("Location: login.php");
+// Timeout in seconds
+$timeout_duration = 60;
+
+// Redirect to login if not logged in
+if (!isset($_SESSION['username'])) {
+    header('Location: login.php');
     exit;
 }
+
+// Check for session timeout
+if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > $timeout_duration)) {
+    session_unset();
+    session_destroy();
+    header('Location: login.php?message=session_expired');
+    exit;
+}
+$_SESSION['LAST_ACTIVITY'] = time(); // Update last activity time
+
 
 ?>
 
@@ -313,7 +326,7 @@ nav a:hover {
     <ul>
       <li><a href="admin_dashboard.php">Dashboard Admin</a></li>
       <li><a href="manage_admin.php">Manage Room</a></li>
-      <li><a href="../logout.php">Logout</a></li>
+      <li><a href="logout.php">Logout</a></li>
     </ul>
   </nav>
 </header>
@@ -371,9 +384,10 @@ nav a:hover {
                         <td><?= $row['benefits'] ?></td>
                         <td><img src="<?= $row['image_path'] ?>" alt="Room Image" class="room-image"></td>
                         <td>
-                            <button onclick="editRoom(<?= htmlspecialchars(json_encode($row)) ?>)">Edit</button>
-                            <button onclick="deleteRoom(<?= $row['id'] ?>" style ="background-color:red;">Delete</button>
-                        </td>
+    <button onclick="editRoom(<?= htmlspecialchars(json_encode($row)) ?>)">Edit</button>
+    <button onclick="deleteRoom(<?= $row['id'] ?>)" style="background-color:red;">Delete</button>
+</td>
+
                     </tr>
                 <?php endwhile; ?>
             </tbody>

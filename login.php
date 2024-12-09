@@ -32,9 +32,9 @@ if (isset($_COOKIE['remember_me'])) {
 
         // Redirect based on role
         if ($user['role'] === 'admin') {
-            header("Location: admin/admin_dashboard.php");
+            header("Location: admin_dashboard.php");
         } elseif ($user['role'] === 'user') {
-            header("Location: user/user_dashboard.php");
+            header("Location: user_dashboard.php");
         }
         exit;
     }
@@ -71,9 +71,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Redirect based on role
                 if ($user['role'] === 'admin') {
-                    header("Location: admin/admin_dashboard.php");
+                    header("Location: admin_dashboard.php");
                 } elseif ($user['role'] === 'user') {
-                    header("Location: user/user_dashboard.php");
+                    header("Location: user_dashboard.php");
                 }
                 exit;
             } else {

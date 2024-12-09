@@ -200,7 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   <h1>My Profile</h1>
     <div class="profile-header">
       <button onclick="window.location.href='user_dashboard.php'">Dashboard</button>
-      <button onclick="window.location.href='../logout.php'">Logout</button>
+      <button onclick="window.location.href='logout.php'">Logout</button>
     </div>
 
     <div class="profile-info">
