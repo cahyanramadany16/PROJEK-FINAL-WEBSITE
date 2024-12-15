@@ -1,5 +1,7 @@
 <?php
 session_start();
+// Timeout in seconds
+$timeout_duration = 100;
 
 // Database connection
 $servername = "localhost";
@@ -67,6 +69,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="css/signup.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+
+        /* Untuk perangkat dengan lebar maksimal 768px (tablet) */
+@media (max-width: 768px) {
+    body {
+        font-size: 14px;
+        padding: 15px;
+    }
+}
+
+/* Untuk perangkat dengan lebar maksimal 480px (ponsel) */
+@media (max-width: 480px) {
+    body {
+        font-size: 12px;
+        padding: 10px;
+    }
+}
         /* Reset Default Styling */
 * {
     margin: 0;

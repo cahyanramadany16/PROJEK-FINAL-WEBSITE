@@ -8,11 +8,15 @@ session_start();
 
 
 // Timeout in seconds
-$timeout_duration = 60;
+$timeout_duration = 100;
 
 // Redirect to login if not logged in
 if (!isset($_SESSION['username'])) {
     header('Location: login.php');
+    exit;
+}
+if ($_SESSION['role'] !== 'user') {
+    header("Location: tabelRoom.php");
     exit;
 }
 
@@ -53,12 +57,30 @@ $result = $conn->query("SELECT * FROM room_types");
 </head>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+
+    /* Untuk perangkat dengan lebar maksimal 768px (tablet) */
+@media (max-width: 768px) {
+    body {
+        font-size: 14px;
+        padding: 15px;
+    }
+}
+
+/* Untuk perangkat dengan lebar maksimal 480px (ponsel) */
+@media (max-width: 480px) {
+  
+    body{
+        font-size: 12px;
+        padding: 10px;
+    }
+}
     body {
         font-family: 'Poppins', sans-serif;
-        padding: 0;
         background-color: #f4f4f4;
         animation: fadeIn 1s ease-in-out;
+
     }
+    
 
     /* Animasi fade-in saat halaman dimuat */
     @keyframes fadeIn {
@@ -94,33 +116,34 @@ $result = $conn->query("SELECT * FROM room_types");
     }
 
     nav {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 0 20px;
-    }
-
-    nav ul {
-        list-style: none;
-        display: flex;
-        margin: 0;
-        padding: 0;
-    }
-
-    nav li {
-        margin-left: 20px;
-    }
-
-    nav a {
-        text-decoration: none;
-        color: #f7e0e0;
-        font-weight: bold;
-        transition: color 0.3s ease;
-    }
-
-    nav a:hover {
-        color: #ff6347;
-    }
+    display: flex;
+    justify-content: center; /* Menyelaraskan item ke tengah */
+    align-items: center;
+    padding: 0 20px;
+  }
+  
+  nav ul {
+    list-style: none; /* Menghilangkan gaya list */
+    display: flex;
+    text-align: left;
+    margin: 0;
+    padding: 0;
+  }
+  
+  nav li {
+    margin-left: 20px; /* Memberi jarak antar item menu */
+  }
+  
+  nav a {
+    text-decoration: none; /* Menghilangkan garis bawah pada link */
+    color: #ffffff86; /* Warna teks link */
+    font-weight: bold; /* Membuat teks lebih tebal */
+    transition: color 0.3s ease; /* Menambahkan transisi saat hover */
+  }
+  
+  nav a:hover {
+    color: #ff6347; /* Warna teks saat di-hover */
+  }
 
     /* Section Styles */
     section {
@@ -258,18 +281,21 @@ $result = $conn->query("SELECT * FROM room_types");
 </style>
 <body>
 <header>
-    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-        <h1>Four Points by Sheraton Makassar</h1>
-        <div class="user-greeting" style="font-size: 1.5em; color: white; margin-right: 15%;">Hi, <?php echo htmlspecialchars($_SESSION['username']); ?></div>
+<div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+    <h1>Room Information Four Points by Sheraton Makassar</h1>
+    <div class="user-greeting" style="font-size: 1.5em; margin-right: 15%; color: white; padding-top: 50px;">
+      Hi, <?php echo htmlspecialchars($_SESSION['username']); ?>
+            <a href="profil.php" style="text-decoration: none;">👤</a>
+        </div>
     </div>
-    <nav>       
+    <nav>
         <ul>
             <li><a href="user_dashboard.php">Home</a></li>
             <li><a href="user_dashboard.php#About">About</a></li>
             <li><a href="user_dashboard.php#Contact">Contact</a></li>
             <li><a href="tabelRoom.php">Room Types</a></li>
-            <li><a href="reservationForm.php">Reservation</a></li>
-            <li><a href="logout.php">Logout</a></li>
+            <li><a href="reservationForm.php" target="_blank">Reservation</a></li>
+            <li><a href="?logout=true">Logout</a></li>
         </ul>
     </nav>
 </header>

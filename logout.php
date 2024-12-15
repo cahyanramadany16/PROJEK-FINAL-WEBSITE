@@ -7,8 +7,11 @@ session_unset();
 // Hancurkan session
 session_destroy();
 
-// Menghapus cookie jika ada
-setcookie('username', '', time() - 86400, '/');  // Hapus cookie 'username'
+// Hapus cookie "remember_me" jika ada
+if (isset($_COOKIE['remember_me'])) {
+    // Set cookie dengan waktu kadaluarsa di masa lalu untuk menghapusnya
+    setcookie('remember_me', '', time() - 3600, "/"); // Menghapus cookie
+}
 
 // Redirect ke halaman login
 header("Location: login.php");

@@ -112,11 +112,16 @@ if (!$result) {
 
 session_start();
 // Timeout in seconds
-$timeout_duration = 60;
+$timeout_duration = 100;
 
 // Redirect to login if not logged in
 if (!isset($_SESSION['username'])) {
     header('Location: login.php');
+    exit;
+}
+
+if ($_SESSION['role'] !== 'admin') {
+    header("Location: manage_admin.php");
     exit;
 }
 
@@ -135,9 +140,25 @@ $_SESSION['LAST_ACTIVITY'] = time(); // Update last activity time
 <!DOCTYPE html>
 <html>
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Four Points by Sheraton Makassar</title>
   <style>
+        /* Untuk perangkat dengan lebar maksimal 768px (tablet) */
+    @media (max-width: 768px) {
+        body {
+            font-size: 14px;
+            padding: 15px;
+        }
+    }
 
+    /* Untuk perangkat dengan lebar maksimal 480px (ponsel) */
+    @media (max-width: 480px) {
+        body {
+            font-size: 12px;
+            padding: 10px;
+        }
+    }
     body {
     font-family: 'Poppins', sans-serif; /* Menggunakan font Poppins */
     margin: 0;
@@ -313,7 +334,7 @@ nav a:hover {
 <header>
   <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; padding: 10px 20px;">
     <!-- Title aligned to the left -->
-    <h1 style="flex-grow: 1; margin: 0;">Welcome To Four Points by Sheraton Makassar</h1>
+    <h1 style="flex-grow: 1; margin: 0;">Manage Room Four Points by Sheraton Makassar</h1>
 
     <!-- "Hi, Admin" aligned to the right -->
     <div class="user-greeting" style="font-size: 1.5em; margin-right: 15%; color: white; padding-top: 50px;">
@@ -326,6 +347,7 @@ nav a:hover {
     <ul>
       <li><a href="admin_dashboard.php">Dashboard Admin</a></li>
       <li><a href="manage_admin.php">Manage Room</a></li>
+      <li><a href="reservationInfo.php">Reservation Info</a></li>
       <li><a href="logout.php">Logout</a></li>
     </ul>
   </nav>
@@ -337,8 +359,6 @@ nav a:hover {
     <div id="form-container">
         <h3 id="formTitle">Add/Edit Room</h3>
         <form action="" method="POST" enctype="multipart/form-data">
-            <label for="id">Id:</label>
-            <input type="number" name="id" id="id" required>
 
             <label for="room_type">Room Type:</label>
             <input type="text" id="room_type" name="room_type" required>

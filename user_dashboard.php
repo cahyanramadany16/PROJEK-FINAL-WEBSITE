@@ -7,11 +7,16 @@ $dbname = "db_projek";
 session_start();
 
 // Timeout in seconds
-$timeout_duration = 60;
+$timeout_duration = 100;
 
 // Redirect to login if not logged in
 if (!isset($_SESSION['username'])) {
     header('Location: login.php');
+    exit;
+}
+
+if ($_SESSION['role'] !== 'user') {
+    header("Location: user_dashboard.php");
     exit;
 }
 
@@ -62,8 +67,24 @@ $roomResult = $conn->query($roomQuery);
 <head>
     <title>Four Points by Sheraton Makassar - Room Types</title>
     <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Untuk perangkat dengan lebar maksimal 768px (tablet) */
+@media (max-width: 768px) {
+    body {
+        font-size: 14px;
+        padding: 15px;
+    }
+}
+
+/* Untuk perangkat dengan lebar maksimal 480px (ponsel) */
+@media (max-width: 480px) {
+    body {
+        font-size: 12px;
+        padding: 10px;
+    }
+}
         body {
             font-family: 'Poppins', sans-serif;
         }
@@ -135,13 +156,13 @@ $roomResult = $conn->query($roomQuery);
             <li><a href="#Contact">Contact</a></li>
             <li><a href="tabelRoom.php">Room Types</a></li>
             <li><a href="reservationForm.php" target="_blank">Reservation</a></li>
-            <li><a href="?logout=true">Logout</a></li>
+            <li><a href="logout.php">Logout</a></li>
         </ul>
     </nav>
 </header>
 <div id="Home" class=" hero fade-in-on-scroll" style="background-image: url(resource/hotel.jpg);">
   <div class="hero-content">
-    <h1>Room Management at Four Points by Sheraton Makassar</h1>
+    <h1>Welcome To Four Points by Sheraton Makassar</h1>
     <p>Experience the best of Makassar at our hotel</p>
   </div>
 </div>
