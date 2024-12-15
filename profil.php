@@ -10,7 +10,7 @@ $timeout_duration = 100;
 
 // Redirect ke halaman login jika belum login
 if (!isset($_SESSION['username'])) {
-    header('Location: login.php');
+    header('Location: index.php');
     exit;
 }
 

@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($stmt->execute()) {
                 $_SESSION['username'] = $username;
                 $_SESSION['role'] = $role;
-                header("Location: login.php");
+                header("Location: index.php");
                 exit;
             } else {
                 $error = "Failed to register. Please try again.";
@@ -242,7 +242,7 @@ footer {
                 </div>
 
                 <button type="submit" class="signup-button">Sign Up</button>
-                <p class="login-link">Already have an account? <a href="login.php">Login</a></p>
+                <p class="login-link">Already have an account? <a href="index.php">Login</a></p>
             </form> 
         </div>
     <footer>
