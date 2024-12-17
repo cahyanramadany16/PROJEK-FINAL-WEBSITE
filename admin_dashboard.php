@@ -8,7 +8,7 @@ $dbname = "db_projek";
 session_start();
 
 // Timeout in seconds
-$timeout_duration = 5;
+$timeout_duration = 3600;
 if (!isset($_SESSION['username'])) {
     // If not logged in, redirect to the login page
     header("Location: login.php");

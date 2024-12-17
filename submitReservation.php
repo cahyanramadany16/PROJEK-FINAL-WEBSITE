@@ -3,7 +3,7 @@ session_start();
 
 
 // Timeout in seconds
-$timeout_duration = 60;
+$timeout_duration = 3600;
 
 // Redirect to login if not logged in
 if (!isset($_SESSION['username'])) {

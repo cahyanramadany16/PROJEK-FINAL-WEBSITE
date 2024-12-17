@@ -1,7 +1,7 @@
 <?php
 session_start();
 // Timeout in seconds
-$timeout_duration = 1000;
+$timeout_duration = 3600;
 // Redirect ke halaman login jika belum login
 if (!isset($_SESSION['username'])) {
     header('Location: login.php');

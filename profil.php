@@ -6,7 +6,7 @@ $password = "";
 $dbname = "db_projek";
 session_start();
 // Timeout in seconds
-$timeout_duration = 100;
+$timeout_duration = 3600;
 
 // Redirect ke halaman login jika belum login
 if (!isset($_SESSION['username'])) {
