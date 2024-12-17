@@ -7,11 +7,11 @@ $dbname = "db_projek";
 session_start();
 
 // Timeout in seconds
-$timeout_duration = 100;
+$timeout_duration = 1000;
 
 // Redirect to login if not logged in
 if (!isset($_SESSION['username'])) {
-    header('Location: index.php');
+    header('Location: login.php');
     exit;
 }
 
@@ -24,7 +24,7 @@ if ($_SESSION['role'] !== 'user') {
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > $timeout_duration)) {
     session_unset();
     session_destroy();
-    header('Location: index.php?message=session_expired');
+    header('Location: login.php?message=session_expired');
     exit;
 }
 $_SESSION['LAST_ACTIVITY'] = time(); // Update last activity time

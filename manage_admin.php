@@ -116,7 +116,7 @@ $timeout_duration = 100;
 
 // Redirect to login if not logged in
 if (!isset($_SESSION['username'])) {
-    header('Location: index.php');
+    header('Location: login.php');
     exit;
 }
 
@@ -129,7 +129,7 @@ if ($_SESSION['role'] !== 'admin') {
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > $timeout_duration)) {
     session_unset();
     session_destroy();
-    header('Location: index.php?message=session_expired');
+    header('Location: login.php?message=session_expired');
     exit;
 }
 $_SESSION['LAST_ACTIVITY'] = time(); // Update last activity time
@@ -355,29 +355,33 @@ nav a:hover {
 
 
 <main>
-    <!-- Form Section -->
-    <div id="form-container">
-        <h3 id="formTitle">Add/Edit Room</h3>
-        <form action="" method="POST" enctype="multipart/form-data">
+<!-- Form Section -->
+<div id="form-container">
+    <h3 id="formTitle">Add Room</h3>
+    <form action="" method="POST" enctype="multipart/form-data">
+        <!-- Hidden Input for ID -->
+        <input type="hidden" id="id" name="id">
 
-            <label for="room_type">Room Type:</label>
-            <input type="text" id="room_type" name="room_type" required>
+        <label for="room_type">Room Type:</label>
+        <input type="text" id="room_type" name="room_type" required>
 
-            <label for="category">Category:</label>
-            <input type="text" id="category" name="category" required>
+        <label for="category">Category:</label>
+        <input type="text" id="category" name="category" required>
 
-            <label for="price">Price:</label>
-            <input type="number" id="price" name="price" required>
+        <label for="price">Price:</label>
+        <input type="number" id="price" name="price" required>
 
-            <label for="benefits">Benefits:</label>
-            <textarea id="benefits" name="benefits" required></textarea>
+        <label for="benefits">Benefits:</label>
+        <textarea id="benefits" name="benefits" required></textarea>
 
-            <label for="image">Room Image:</label>
-            <input type="file" id="image" name="image" accept="resource/*">
+        <label for="image">Room Image:</label>
+        <input type="file" id="image" name="image" accept="image/*">
 
-            <button type="submit" name="add_room">Save</button>
-        </form>
-    </div>
+        <!-- Button Label Will Change Dynamically -->
+        <button type="submit" id="formButton" name="add_room">Save</button>
+    </form>
+</div>
+
 
     <!-- Table Section -->
     <div id="table-container">
@@ -422,7 +426,6 @@ nav a:hover {
 <script>
 function editRoom(room) {
     document.getElementById('formTitle').textContent = "Edit Room";
-    document.getElementById('id').value = room.id;
     document.getElementById('room_type').value = room.room_type;
     document.getElementById('category').value = room.category;
     document.getElementById('price').value = room.price;

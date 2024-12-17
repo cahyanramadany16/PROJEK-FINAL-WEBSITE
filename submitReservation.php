@@ -7,7 +7,7 @@ $timeout_duration = 60;
 
 // Redirect to login if not logged in
 if (!isset($_SESSION['username'])) {
-    header('Location: index.php');
+    header('Location: login.php');
     exit;
 }
 
@@ -15,7 +15,7 @@ if (!isset($_SESSION['username'])) {
 if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > $timeout_duration)) {
     session_unset();
     session_destroy();
-    header('Location: index.php?message=session_expired');
+    header('Location: login.php?message=session_expired');
     exit;
 }
 $_SESSION['LAST_ACTIVITY'] = time(); // Update last activity time
