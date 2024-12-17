@@ -1,4 +1,29 @@
 <?php
+
+session_start();
+// Timeout in seconds
+$timeout_duration = 1000;
+// Redirect ke halaman login jika belum login
+if (!isset($_SESSION['username'])) {
+    header('Location: login.php');
+    exit;
+}
+
+if ($_SESSION['role'] !== 'admin') {
+    header("Location: manage_admin.php");
+    exit;
+}
+
+// Tangani username dengan aman
+$username = isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : 'Guest';
+
+// Proses logout
+if (isset($_GET['logout'])) {
+    session_unset();
+    session_destroy();
+    header('Location: logout.php');
+}
+
 // Database Connection
 $servername = "localhost";
 $username = "root";
@@ -12,25 +37,17 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Handle Edit Room
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_room'])) {
-    $id = $_POST['id'];
+// Handle Add Room
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_room'])) {
     $room_type = $_POST['room_type'];
     $category = $_POST['category'];
     $price = $_POST['price'];
     $benefits = $_POST['benefits'];
 
-    // Ambil gambar lama dari database
-    $result = $conn->query("SELECT image_path FROM room_types WHERE id = $id");
-    $row = $result->fetch_assoc();
-    $existing_image_path = $row['image_path'];
-
-    // Validasi untuk gambar
+    // Process image upload
     if ($_FILES['image']['error'] == UPLOAD_ERR_NO_FILE) {
-        // Jika tidak ada file yang di-upload, tetap gunakan gambar lama
-        $image_path = $existing_image_path;
+        $image_path = ''; // If no image is uploaded, set an empty string
     } elseif ($_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        // Jika ada file gambar yang di-upload, lanjutkan proses upload
         $image = $_FILES['image'];
         $image_path = "uploads/" . basename($image['name']);
         if (!move_uploaded_file($image['tmp_name'], $image_path)) {
@@ -40,67 +57,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_room'])) {
         die("Error uploading file: " . $_FILES['image']['error']);
     }
 
-    // Persiapkan query untuk update data
-    if ($_FILES['image']['error'] == UPLOAD_ERR_NO_FILE) {
-        $stmt = $conn->prepare("UPDATE room_types SET room_type = ?, category = ?, price = ?, benefits = ? WHERE id = ?");
-        $stmt->bind_param("ssdsi", $room_type, $category, $price, $benefits, $id);
+    // Insert query
+    $stmt = $conn->prepare("INSERT INTO room_types (room_type, category, price, benefits, image_path) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssdss", $room_type, $category, $price, $benefits, $image_path);
+
+    if ($stmt->execute()) {
+        $message = "Room berhasil ditambahkan";
     } else {
-        $stmt = $conn->prepare("UPDATE room_types SET room_type = ?, category = ?, price = ?, benefits = ?, image_path = ? WHERE id = ?");
-        $stmt->bind_param("ssdssi", $room_type, $category, $price, $benefits, $image_path, $id);
+        $message = "Terjadi kesalahan saat menambahkan room";
     }
 
-    $stmt->execute();
     $stmt->close();
-    header("Location: " . $_SERVER['PHP_SELF']);
+    header("Location: " . $_SERVER['PHP_SELF'] . "?message=" . urlencode($message));
     exit;
 }
 
-// Handle Add Room
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_room'])) {
+// Handle Edit Room
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_room'])) {
+    $id = $_POST['id'];
     $room_type = $_POST['room_type'];
     $category = $_POST['category'];
     $price = $_POST['price'];
     $benefits = $_POST['benefits'];
-    $image = $_FILES['image'];
+    $existing_image_path = $_POST['existing_image_path'];
 
-    // Validasi untuk image
-    if ($image['error'] !== UPLOAD_ERR_OK) {
-        die("Error uploading file: " . $image['error']);
+    // Process image upload
+    if ($_FILES['image']['error'] == UPLOAD_ERR_NO_FILE) {
+        $image_path = $existing_image_path;
+    } elseif ($_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        $image = $_FILES['image'];
+        $image_path = "uploads/" . basename($image['name']);
+        if (!move_uploaded_file($image['tmp_name'], $image_path)) {
+            die("Error uploading file to destination.");
+        }
+    } else {
+        die("Error uploading file: " . $_FILES['image']['error']);
     }
 
-    // Memastikan folder resource ada
-    $image_path = "resource/" . basename($image['name']);
-    if (!move_uploaded_file($image['tmp_name'], $image_path)) {
-        die("Error uploading file to destination.");
-    }
-
-    // Persiapkan query untuk menambahkan data
-    $stmt = $conn->prepare("INSERT INTO room_types (room_type, category, price, benefits, image_path) VALUES (?, ?, ?, ?, ?)");
-    if ($stmt === false) {
-        die("Error preparing the query: " . $conn->error);
-    }
-
-    $stmt->bind_param("ssdss", $room_type, $category, $price, $benefits, $image_path);
+    // Update query
+    $stmt = $conn->prepare("UPDATE room_types SET room_type = ?, category = ?, price = ?, benefits = ?, image_path = ? WHERE id = ?");
+    $stmt->bind_param("ssdssi", $room_type, $category, $price, $benefits, $image_path, $id);
 
     if ($stmt->execute()) {
-        echo "Room added successfully!";
+        $message = "Room berhasil di edit";
     } else {
-        echo "Error: " . $stmt->error;
+        $message = "Terjadi kesalahan saat mengedit room";
     }
 
     $stmt->close();
-    header("Location: " . $_SERVER['PHP_SELF']);
+    header("Location: " . $_SERVER['PHP_SELF'] . "?message=" . urlencode($message));
     exit;
 }
 
 // Handle Delete Room
 if (isset($_GET['delete_id'])) {
-    $id = $_GET['delete_id'];
+    $delete_id = $_GET['delete_id'];
+
+    // Delete query
     $stmt = $conn->prepare("DELETE FROM room_types WHERE id = ?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
+    $stmt->bind_param("i", $delete_id);
+
+    if ($stmt->execute()) {
+        $message = "Room berhasil dihapus";
+    } else {
+        $message = "Terjadi kesalahan saat menghapus room";
+    }
+
     $stmt->close();
-    header("Location: " . $_SERVER['PHP_SELF']);
+    header("Location: " . $_SERVER['PHP_SELF'] . "?message=" . urlencode($message));
     exit;
 }
 
@@ -109,41 +133,13 @@ $result = $conn->query("SELECT * FROM room_types");
 if (!$result) {
     die("Error fetching data: " . $conn->error);
 }
-
-session_start();
-// Timeout in seconds
-$timeout_duration = 100;
-
-// Redirect to login if not logged in
-if (!isset($_SESSION['username'])) {
-    header('Location: login.php');
-    exit;
-}
-
-if ($_SESSION['role'] !== 'admin') {
-    header("Location: manage_admin.php");
-    exit;
-}
-
-// Check for session timeout
-if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > $timeout_duration)) {
-    session_unset();
-    session_destroy();
-    header('Location: login.php?message=session_expired');
-    exit;
-}
-$_SESSION['LAST_ACTIVITY'] = time(); // Update last activity time
-
-
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Four Points by Sheraton Makassar</title>
-  <style>
+    <title>Manage Room - Four Points by Sheraton Makassar</title>
+    <style>
         /* Untuk perangkat dengan lebar maksimal 768px (tablet) */
     @media (max-width: 768px) {
         body {
@@ -199,35 +195,35 @@ $_SESSION['LAST_ACTIVITY'] = time(); // Update last activity time
     margin-left: 10px; /* Memberi jarak antara logo dan judul */
     }
     
-nav {
-  display: flex;
-  justify-content: center; /* Menyelaraskan item ke tengah */
-  align-items: center;
+        nav {
+        display: flex;
+        justify-content: center; /* Menyelaraskan item ke tengah */
+        align-items: center;
 
-  padding: 0 20px;
-}
+        padding: 0 20px;
+        }
 
-nav ul {
-  list-style: none; /* Menghilangkan gaya list */
-  display: flex;
-  margin: 0;
-  padding: 0;
-}
+        nav ul {
+        list-style: none; /* Menghilangkan gaya list */
+        display: flex;
+        margin: 0;
+        padding: 0;
+        }
 
-nav li {
-  margin-left: 20px; /* Memberi jarak antar item menu */
-}
+        nav li {
+        margin-left: 20px; /* Memberi jarak antar item menu */
+        }
 
-nav a {
-  text-decoration: none; /* Menghilangkan garis bawah pada link */
-  color: #f7e0e0; /* Warna teks link */
-  font-weight: bold; /* Membuat teks lebih tebal */
-  transition: color 0.3s ease; /* Menambahkan transisi saat hover */
-}
+        nav a {
+        text-decoration: none; /* Menghilangkan garis bawah pada link */
+        color: #f7e0e0; /* Warna teks link */
+        font-weight: bold; /* Membuat teks lebih tebal */
+        transition: color 0.3s ease; /* Menambahkan transisi saat hover */
+        }
 
-nav a:hover {
-  color: #ff6347; /* Warna teks saat di-hover */
-}
+        nav a:hover {
+        color: #ff6347; /* Warna teks saat di-hover */
+        }
         /* Main Container */
         main {
             margin-top: 85px;
@@ -327,9 +323,14 @@ nav a:hover {
         }
   </style>
 </head>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <body>
-
+<?php
+// Tampilkan alert jika ada pesan di URL
+if (isset($_GET['message'])) {
+    $alertMessage = htmlspecialchars($_GET['message']);
+    echo "<script>alert('$alertMessage');</script>";
+}
+?>
 
 <header>
   <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; padding: 10px 20px;">
@@ -355,33 +356,30 @@ nav a:hover {
 
 
 <main>
-<!-- Form Section -->
-<div id="form-container">
-    <h3 id="formTitle">Add Room</h3>
-    <form action="" method="POST" enctype="multipart/form-data">
-        <!-- Hidden Input for ID -->
-        <input type="hidden" id="id" name="id">
+    <!-- Form Section -->
+    <div id="form-container">
+        <h3 id="formTitle">Add Room</h3>
+        <form action="" method="POST" enctype="multipart/form-data">
+            <input type="hidden" id="id" name="id">
+            <label for="room_type">Room Type:</label>
+            <input type="text" id="room_type" name="room_type" required>
 
-        <label for="room_type">Room Type:</label>
-        <input type="text" id="room_type" name="room_type" required>
+            <label for="category">Category:</label>
+            <input type="text" id="category" name="category" required>
 
-        <label for="category">Category:</label>
-        <input type="text" id="category" name="category" required>
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="price" required>
 
-        <label for="price">Price:</label>
-        <input type="number" id="price" name="price" required>
+            <label for="benefits">Benefits:</label>
+            <textarea id="benefits" name="benefits" required></textarea>
 
-        <label for="benefits">Benefits:</label>
-        <textarea id="benefits" name="benefits" required></textarea>
+            <label for="image">Room Image:</label>
+            <input type="file" id="image" name="image" accept="image/*">
+            <input type="hidden" id="existing_image_path" name="existing_image_path">
 
-        <label for="image">Room Image:</label>
-        <input type="file" id="image" name="image" accept="image/*">
-
-        <!-- Button Label Will Change Dynamically -->
-        <button type="submit" id="formButton" name="add_room">Save</button>
-    </form>
-</div>
-
+            <button type="submit" id="formButton" name="add_room">Save</button>
+        </form>
+    </div>
 
     <!-- Table Section -->
     <div id="table-container">
@@ -408,10 +406,9 @@ nav a:hover {
                         <td><?= $row['benefits'] ?></td>
                         <td><img src="<?= $row['image_path'] ?>" alt="Room Image" class="room-image"></td>
                         <td>
-    <button onclick="editRoom(<?= htmlspecialchars(json_encode($row)) ?>)">Edit</button>
-    <button onclick="deleteRoom(<?= $row['id'] ?>)" style="background-color:red;">Delete</button>
-</td>
-
+                            <button onclick="editRoom(<?= htmlspecialchars(json_encode($row)) ?>)">Edit</button>
+                            <button onclick="deleteRoom(<?= $row['id'] ?>)" style="background-color:red;">Delete</button>
+                        </td>
                     </tr>
                 <?php endwhile; ?>
             </tbody>
@@ -419,17 +416,16 @@ nav a:hover {
     </div>
 </main>
 
-<footer>
-    <p>Four Points by Sheraton Makassar &copy; 2024</p>
-</footer>
-
 <script>
 function editRoom(room) {
     document.getElementById('formTitle').textContent = "Edit Room";
+    document.getElementById('id').value = room.id;
     document.getElementById('room_type').value = room.room_type;
     document.getElementById('category').value = room.category;
     document.getElementById('price').value = room.price;
     document.getElementById('benefits').value = room.benefits;
+    document.getElementById('existing_image_path').value = room.image_path;
+    document.getElementById('formButton').name = "edit_room";
 }
 
 function deleteRoom(id) {

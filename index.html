@@ -11,11 +11,16 @@
             font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background: url(resource/hotel.jpg) no-repeat center center fixed;
+            background-size: cover; /* Gradasi warna latar belakang */
+            color: #fff; /* Warna teks default */
+            backdrop-filter: blur(5px);
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            overflow: hidden;
+            animation: fadeIn 1.5s ease-in-out;
         }
         .landing-container {
             text-align: center;
@@ -25,15 +30,18 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             max-width: 600px;
             width: 90%;
+            animation: slideIn 1s ease-in-out;
         }
         .landing-container h1 {
             font-size: 2.5em;
             color: #29668f;
             margin-bottom: 20px;
+            animation: fadeDown 1.2s ease-in-out;
         }
         .landing-container p {
             font-size: 1.2em;
             margin-bottom: 30px;
+            animation: fadeDown 1.4s ease-in-out;
         }
         .landing-container a {
             text-decoration: none;
@@ -43,28 +51,72 @@
             font-weight: bold;
             border-radius: 5px;
             margin: 5px;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
         .landing-container a:hover {
             background-color: #ff6347;
+            transform: scale(1.1);
         }
         .about-section {
             margin-top: 20px;
             font-size: 1em;
             color: #555;
+            animation: fadeUp 1.6s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeDown {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
     </style>
 </head>
 <body>
     <div class="landing-container">
         <h1>Welcome to Four Points by Sheraton Makassar</h1>
-        <p>Experience luxury and comfort at our premier hotel.</p>
+        <div class="about-section">
+            <h2>Experience luxury and comfort at our premier hotel.</h2>
+            <p>About Us: Four Points by Sheraton Makassar offers world-class accommodations and services. Located in the heart of Makassar, our hotel is perfect for business and leisure travelers alike. Enjoy premium facilities, exceptional dining, and a warm welcome at our establishment.</p>
+        </div>
         <div>
             <a href="login.php">Login</a>
             <a href="signup.php">Sign Up</a>
-        </div>
-        <div class="about-section">
-            <p>About Us: Four Points by Sheraton Makassar offers world-class accommodations and services. Located in the heart of Makassar, our hotel is perfect for business and leisure travelers alike. Enjoy premium facilities, exceptional dining, and a warm welcome at our establishment.</p>
         </div>
     </div>
 </body>
